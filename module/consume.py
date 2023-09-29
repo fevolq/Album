@@ -3,9 +3,7 @@
 # CreateTime: 2023/9/23 16:44
 # FileName: 监听队列
 
-import getopt
 import logging
-import sys
 
 import constant
 from module import album
@@ -39,6 +37,9 @@ class Consume:
 
 
 if __name__ == '__main__':
+    import getopt
+    import sys
+
     from utils import log_util
 
     log_util.init_logging(stream_level='INFO')

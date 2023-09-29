@@ -21,9 +21,9 @@ class Album:
 
     def __init__(self, origin: str, end_point: str, **kwargs):
         # 任务数据（根据任务，来进行下发图集任务）
-        self.origin = origin
+        self.origin = origin.lower()
         self.end_point = end_point
-        self.hash_str = bean.gen_unique_origin_album(origin, end_point)
+        self.hash_str = bean.gen_unique_origin_album(self.origin, end_point)
         self.kwargs = kwargs
 
         # 元数据（各来源的数据）
@@ -151,4 +151,27 @@ def run(*args, **kwargs):
 
 
 if __name__ == '__main__':
-    run()
+    import getopt
+    import sys
+
+    from utils import log_util
+
+    log_util.init_logging(stream_level='INFO')
+
+    origin_ = None
+    end_point_ = None
+
+    opts, _ = getopt.getopt(sys.argv[1:], "o:e:", ["origin=", "end_point="])
+    opts = dict(opts)
+    if opts.get("-o"):
+        origin_ = str(opts.get("-o"))
+    elif opts.get("--origin"):
+        origin_ = str(opts.get("--origin"))
+    if opts.get("-e"):
+        end_point_ = str(opts.get("-e"))
+    elif opts.get("--end_point"):
+        end_point_ = str(opts.get("--end_point"))
+
+    assert all([origin_, end_point_]), '缺少参数'
+
+    run(origin_, end_point_)

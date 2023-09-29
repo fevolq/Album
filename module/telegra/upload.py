@@ -30,7 +30,7 @@ class UploadAlbum:
 
         :param title:
         :param images:  [图片链接 或 本地路径]
-        :param kwargs: {auth: 作者, ..., headers: 图片请求头, ..., from_local: 本地}
+        :param kwargs: {auth: 作者, ..., from_local: 本地, extra: {爬虫实例透传的数据，如: header}}
         """
         assert title and images, '缺少参数'
         self.title = title
@@ -60,7 +60,7 @@ class UploadAlbum:
                 content = f.read()
         else:
             # resp = requests.get(image, headers=self.kwargs.get('headers', None))
-            result = Fetch.request(image, headers=self.kwargs.get('headers', None), again=3)
+            result = Fetch.request(image, headers=self.kwargs.get('extra', {}).get('headers', None), again=3)
             resp = result['res']
             if resp.status_code == 200:
                 content = resp.content
