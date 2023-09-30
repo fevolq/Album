@@ -31,7 +31,6 @@ class Origin(metaclass=ABCMeta):
         return self.__images
 
     @property
-    @abstractmethod
     def extra(self):
         return self.__extra
 

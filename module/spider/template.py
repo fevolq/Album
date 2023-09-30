@@ -21,7 +21,6 @@ class Template(Origin):
 
         self.__title = None
         self.__images = []
-        self.__extra = {}
 
     @property
     def title(self):
@@ -34,10 +33,6 @@ class Template(Origin):
     @property
     def images(self):
         return self.__images
-
-    @property
-    def extra(self):
-        return self.__extra
 
     def run(self):
         raise Exception('模板类不可实例化')
