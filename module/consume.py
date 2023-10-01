@@ -16,7 +16,7 @@ class Consume:
     def __init__(self, queue: str = constant.MQ_QUEUE):
         self.queue = queue
 
-        self.mq = rabbit.Param(with_dead_exchange=True)
+        self.mq = rabbit.Param(with_dead_exchange=True, queue=queue)
 
     def start(self, origin: str = None, end_point: str = None):
         """
@@ -37,8 +37,8 @@ class Consume:
 
 
 if __name__ == '__main__':
-    import getopt
-    import sys
+    # import getopt
+    # import sys
 
     from utils import log_util
 

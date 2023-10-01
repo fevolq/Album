@@ -47,9 +47,10 @@ class UploadAlbum:
         self.end_point = ''
 
     @util.catch_error(raise_error=False)
-    def _load_image(self, image) -> Union[dict, None]:
+    def _load_image(self, index, image) -> Union[dict, None]:
         """
         读取图片二进制
+        :param index:
         :param image: 图片链接，或本地路径
         :return: [{image: 原链接, content: 图片二进制内容}]
         """
@@ -64,12 +65,15 @@ class UploadAlbum:
             # resp = requests.get(image, headers=self.kwargs.get('headers', None))
             result = Fetch.request(image, headers=self.kwargs.get('extra', {}).get('headers', None), again=3)
             resp = result['res']
-            if resp.status_code == 200:
+            if resp is None:
+                logging.error(f'Failure load：{image} , error request')
+            elif resp.status_code == 200:
                 content = resp.content
             else:
                 logging.error(f'Failure load：{image} , Status_code: {resp.status_code}')
         logging.info(f'End load: {image}')
         return {
+            'index': index,
             'url': image,
             'content': content,
         }
@@ -81,41 +85,51 @@ class UploadAlbum:
         """
 
         # result = []
-        # for image_ in self.images:
-        #     content = self._load(image_)
+        # for index, image in enumerate(self.images):
+        #     content = self._load(index, image)
         #     result.append(content)
 
-        result = pools.execute_event(self._load_image, [[(image_,)] for image_ in self.images])
+        result = pools.execute_event(self._load_image, [[(index, image,)] for index, image in enumerate(self.images)])
 
         return result
 
     @util.catch_error(raise_error=False)
-    def _upload_image(self, image: dict) -> str:
+    def _upload_image(self, image: dict) -> Union[dict, None]:
         """
         上传单张图片
-        :return:
+        :param image: {index, url, content} or None
+        :return: {index, url, src} or None
         """
-        logging.info(f'Start upload: {image["url"]}')
-        if not image or not image['content']:
-            if image:
-                logging.warning(f'图片：{image["url"]} 内容为空')
-            return ''
+        if image is None:
+            return image
 
-        image['content'] = ReImage(image['content']).resize_small(max_size=6000).get_value()  # 最大尺寸有限制
+        logging.info(f'Start upload: {image["url"]}')
+        image['src'] = ''
+        if not image['content']:
+            logging.warning(f'图片：{image["url"]} 内容为空')
+            return image
+
+        # 重构图片
+        content = image.pop('content')
+        content = ReImage(content).resize_small(max_size=6000).get_value()  # 最大尺寸有限制
 
         with self.upload_limiter:
             url = f'{UploadAlbum.Host}/upload'
             result = Fetch.request(url, method='POST', again=3,
-                                   files={'file': ('file', image['content'], 'image/jpeg')})
+                                   files={'file': ('file', content, 'image/jpeg')})
+
         resp = result['res']
+        if resp is None:
+            logging.warning(f'Error upload request: {image["url"]}')
+            return image
         data = json.loads(resp.text)
 
         if 'error' in data:
             logging.warning(f'Error upload: {data["error"]}: {image["url"]}')
-            return ''
-        src = resp.json()[0]['src']
+            return image
+        image['src'] = resp.json()[0]['src']
         logging.info(f'End upload: {image["url"]}')
-        return src
+        return image
 
     def _upload_images(self, images: List[dict]) -> List[str]:
         """
@@ -124,22 +138,29 @@ class UploadAlbum:
         :return:
         """
         # result = []
-        # for img_content in images_content:
-        #     img_url = self._upload_image(img_content)
-        #     result.append(img_url)
+        # for image in images:
+        #     img = self._upload_image(image)
+        #     result.append(img)
 
         result = pools.execute_event(self._upload_image, [[(image,)] for image in images if image],
                                      maxsize=8, force_pool=True)
+        result = list(filter(lambda item: item is not None, result))
+        result.sort(key=lambda item: item['index'])
 
-        return result
+        return [item['src'] for item in result if item['src']]
 
     def _new_upload(self) -> List[str]:
         task = AsyncQueue(name=self.title)
-        task.add_producer_with_pool(self._load_image, [[(image,)] for image in self.images], times=4)
-        task.add_consumer(self._upload_image)
+        task.add_producer_with_pool(self._load_image, [[(index, image,)] for index, image in enumerate(self.images)])
+        task.add_consumer_with_pool(self._upload_image)
         task.run()
 
-        return task.get_result()
+        result = task.get_result()
+
+        result = list(filter(lambda item: item is not None, result))
+        result.sort(key=lambda item: item['index'])
+
+        return [item['src'] for item in result if item['src']]
 
     def _publish(self, images: List[str]):
         """

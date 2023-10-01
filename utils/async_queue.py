@@ -71,7 +71,7 @@ class AsyncQueue:
 
     def add_producer_with_pool(self, callback, args_list: List = None, *, times: int = 0, maxsize=4):
         """
-        注册生产（多协程）
+        注册生产者（多协程）（Warning: 结果的顺序不可靠）
         :param callback: 生产者的回调方法
         :param args_list: 参数组成的数组
         :param times: 生产者执行的次数。当args_list为空时生效
