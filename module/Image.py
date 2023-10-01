@@ -1,9 +1,8 @@
 #!-*- coding:utf-8 -*-
 # python3.7
 # CreateTime: 2023/9/22 15:48
-# FileName:
+# FileName: 根据 spider 任务，下发 spider，并记录
 
-import json
 import logging
 from typing import List, Union
 
@@ -12,12 +11,11 @@ from dao import sql_builder, mysqlDB
 from utils import util
 from module import spider
 from module.bean import bean
-from module.mq import rabbit
 
 
 class Image:
     """
-    下发爬取任务，记录数据库，发布图集任务
+    下发爬取任务，记录数据库
     """
 
     def __init__(self, origin, end_point, *, auths: Union[List, str] = None, **kwargs):
@@ -106,46 +104,37 @@ class Image:
                          f' 保存图片成功：{len(self.adapter.images)}张。')
         return res['success']
 
-    def _producer(self):
-        """
-        发布图集任务
-        :return:
-        """
-        mq = rabbit.Param(with_dead_exchange=True)
-        logging.info(f'发送消息：origin：{self.origin}，end_point：{self.end_point},'
-                     f' extra：{json.dumps(self.adapter.extra)}')
+    def get_msg(self):
+        data = {
+            'origin': self.origin,
+            'end_point': self.end_point,
+            'extra': self.adapter.extra
+        }
         headers = {
             'origin': self.origin,
             'end_point': self.end_point,
         }
-        data = {**headers, 'extra': self.adapter.extra, }
-        mq.producer(data=data, headers=headers)
+        return {
+            'data': data,
+            'headers': headers
+        }
 
     def main(self):
-        if not self.has_record:
-            logging.info(f'Start spider album：{self.origin} - {self.end_point}')
-            self.adapter.run()  # 启动爬虫
-            logging.info(f'End spider album：{self.origin} - {self.end_point}')
-            if not self.adapter.images:
-                logging.error(f'origin：{self.origin}，end_point：{self.end_point} 爬取图片失败。')
-                return False
+        if self.has_record:
+            return True
 
-            if not self._add_origin_album():
-                logging.error(f'origin：{self.origin}，end_point：{self.end_point} 保存源数据失败。')
-                return False
+        logging.info(f'Start spider album：{self.origin} - {self.end_point}')
+        self.adapter.run()  # 启动爬虫
+        logging.info(f'End spider album：{self.origin} - {self.end_point}')
+        if not self.adapter.images:
+            logging.error(f'origin：{self.origin}，end_point：{self.end_point} 爬取图片失败。')
+            return False
 
-        self._producer()
+        if not self._add_origin_album():
+            logging.error(f'origin：{self.origin}，end_point：{self.end_point} 保存源数据失败。')
+            return False
+
         return True
-
-
-def run(*args, **kwargs):
-    """
-
-    :param args:
-    :param kwargs:
-    :return:
-    """
-    return Image(*args, **kwargs).main()
 
 
 if __name__ == '__main__':
@@ -158,7 +147,7 @@ if __name__ == '__main__':
 
     origin_ = ''
     end_point_ = ''
-    auths_ = []
+    auths_ = ['']
 
     opts, _ = getopt.getopt(sys.argv[1:], "o:e:a:", ["origin=", "end_point=", "auths="])
     opts = dict(opts)
@@ -177,4 +166,4 @@ if __name__ == '__main__':
 
     assert all([origin_, end_point_]), '缺少参数'
 
-    run(origin_, end_point_, auths=auths_)
+    Image(origin_, end_point_, auths=auths_).main()

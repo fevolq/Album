@@ -1,7 +1,7 @@
 #!-*- coding:utf-8 -*-
 # python3.7
 # CreateTime: 2023/9/23 16:44
-# FileName: 监听队列
+# FileName: 监听图集任务队列，并下发给 album
 
 import logging
 
@@ -44,19 +44,21 @@ if __name__ == '__main__':
 
     log_util.init_logging(stream_level='INFO')
 
-    origin_ = None
-    end_point_ = None
+    Consume().start()
 
-    opts, _ = getopt.getopt(sys.argv[1:], "o:e:", ["origin=", "end_point="])
-    opts = dict(opts)
-    if opts.get("-o"):
-        origin_ = str(opts.get("-o"))
-    elif opts.get("--origin"):
-        origin_ = str(opts.get("--origin"))
-    if opts.get("-e"):
-        end_point_ = str(opts.get("-e"))
-    elif opts.get("--end_point"):
-        end_point_ = str(opts.get("--end_point"))
-
-    consume = Consume()
-    consume.start(origin_, end_point_)
+    # origin_ = None
+    # end_point_ = None
+    #
+    # opts, _ = getopt.getopt(sys.argv[1:], "o:e:", ["origin=", "end_point="])
+    # opts = dict(opts)
+    # if opts.get("-o"):
+    #     origin_ = str(opts.get("-o"))
+    # elif opts.get("--origin"):
+    #     origin_ = str(opts.get("--origin"))
+    # if opts.get("-e"):
+    #     end_point_ = str(opts.get("-e"))
+    # elif opts.get("--end_point"):
+    #     end_point_ = str(opts.get("--end_point"))
+    #
+    # consume = Consume()
+    # consume.start(origin_, end_point_)

@@ -3,6 +3,7 @@
 # CreateTime: 2023/9/22 15:01
 # FileName: 上传图片并获取图集路径
 
+import json
 import logging
 from typing import List, Union
 
@@ -11,6 +12,7 @@ from telegraph import Telegraph
 from module.bean.fetch import Fetch
 from utils import pools, util, rate_limit
 from utils.async_queue import AsyncQueue
+from utils.re_image import ReImage
 
 
 class UploadAlbum:
@@ -99,13 +101,17 @@ class UploadAlbum:
                 logging.warning(f'图片：{image["url"]} 内容为空')
             return ''
 
+        image['content'] = ReImage(image['content']).resize_small(max_size=6000).get_value()  # 最大尺寸有限制
+
         with self.upload_limiter:
             url = f'{UploadAlbum.Host}/upload'
-            result = Fetch.request(url, method='POST', again=3, files={'file': ('file', image['content'], 'image/jpg')})
+            result = Fetch.request(url, method='POST', again=3,
+                                   files={'file': ('file', image['content'], 'image/jpeg')})
         resp = result['res']
-        data = resp.json()[0]
+        data = json.loads(resp.text)
+
         if 'error' in data:
-            logging.warning(f'Error upload: {data["error"]}')
+            logging.warning(f'Error upload: {data["error"]}: {image["url"]}')
             return ''
         src = resp.json()[0]['src']
         logging.info(f'End upload: {image["url"]}')
@@ -144,7 +150,8 @@ class UploadAlbum:
         logging.info(f'Publish: {self.title}')
         htmls = [f'<img src="{image}">' for image in images if image]
         if len(self.images) - len(htmls) >= UploadAlbum.MaxMiss:
-            logging.error(f'title：{self.title}，{len(self.images)}张图片丢失数量：{len(self.images) - len(htmls)}，超出阈值{UploadAlbum.MaxMiss}')
+            logging.error(
+                f'title：{self.title}，{len(self.images)}张图片丢失数量：{len(self.images) - len(htmls)}，超出阈值{UploadAlbum.MaxMiss}')
             return
 
         html = ''.join(htmls)

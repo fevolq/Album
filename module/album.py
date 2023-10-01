@@ -1,7 +1,7 @@
 #!-*- coding:utf-8 -*-
 # python3.7
 # CreateTime: 2023/9/22 15:08
-# FileName:
+# FileName: 根据图集任务，制作图集，并记录及更新
 
 import asyncio
 import logging
@@ -27,9 +27,9 @@ class Album:
         self.kwargs = kwargs
 
         # 元数据（各来源的数据）
-        self.title: str = None
-        self.auths: List[dict] = None  # [{name: ..., uid: ...}, ...]
-        self.images: List = None
+        self.title: str = ''
+        self.auths: List[dict] = []  # [{name: ..., uid: ...}, ...]
+        self.images: List = []
 
         self.uri = None  # 制作的图集资源
         self.__hit = True  # 是否找到元数据
