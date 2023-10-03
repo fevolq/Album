@@ -130,7 +130,8 @@ class Album:
         if not self.has_record:
             logging.info(f'Start make album：{self.origin} - {self.title}')
             self.uri = upload.run(self.title, self.images,
-                                  auth='，'.join([auth['name'] for auth in self.auths]), **self.kwargs)
+                                  auth='，'.join([auth['name'] for auth in self.auths]), origin=self.origin,
+                                  **self.kwargs)
             if not self.uri:
                 logging.error(f'origin：{self.origin}，title：{self.title}，hash：{self.hash_str} 上传图集失败。')
                 return False

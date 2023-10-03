@@ -172,7 +172,8 @@ class UploadAlbum:
         htmls = [f'<img src="{image}">' for image in images if image]
         if len(self.images) - len(htmls) >= UploadAlbum.MaxMiss:
             logging.error(
-                f'title：{self.title}，{len(self.images)}张图片丢失数量：{len(self.images) - len(htmls)}，超出阈值{UploadAlbum.MaxMiss}')
+                f'title：{self.title}，{len(self.images)}张图片丢失数量：{len(self.images) - len(htmls)}，'
+                f'超出阈值{UploadAlbum.MaxMiss}')
             return
 
         html = ''.join(htmls)
@@ -183,9 +184,13 @@ class UploadAlbum:
             logging.info(f'图集 {self.title} 发布成功。{UploadAlbum.Host}/{self.end_point}')
 
     def run(self):
-        # images = self._load_images()
-        # images_url = self._upload_images(images)
-        images_url = self._new_upload()
+        origin = self.kwargs.get('origin', '')
+        if origin == 'telegra':
+            images_url = [image.replace(UploadAlbum.Host, '') for image in self.images]
+        else:
+            # images = self._load_images()
+            # images_url = self._upload_images(images)
+            images_url = self._new_upload()
 
         self._publish(images_url)
 
