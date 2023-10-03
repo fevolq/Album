@@ -19,7 +19,7 @@ class MmmRed(Origin):
     def __init__(self, end_point, auths: List = None):
         super().__init__()
         self.end_point = self.resolve_end_point(end_point)
-        self.__auths = auths or []
+        self.__auths = [auth.strip() for auth in auths if auth.strip()] or ['其他']
 
         self.__title = None
         self.__images = []
