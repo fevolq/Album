@@ -13,7 +13,8 @@ def init_logging(filename='',
                  error_level=logging.ERROR,
                  stream_level=logging.DEBUG,
                  daily=True,
-                 datefmt='%H:%M:%S'):
+                 datefmt='%H:%M:%S',
+                 color=True):
     """日志初始化"""
     logging.basicConfig(level=stream_level,
                         format='%(asctime)s.%(msecs)03d %(levelname)s : %(message)s',
@@ -44,6 +45,19 @@ def init_logging(filename='',
                 logging.Formatter('%(asctime)s.%(msecs)03d %(levelname)s : %(message)s', datefmt=datefmt)
             )
             logging.getLogger().addHandler(error_file_handler)
+    if color:
+        class ColorCodes:
+            RESET = '\033[0m'
+            RED = '\033[91m'
+            GREEN = '\033[92m'
+            YELLOW = '\033[93m'
+            BLUE = '\033[94m'
+            CYAN = '\033[96m'
+
+        logging.addLevelName(logging.INFO, f"{ColorCodes.GREEN}{logging.getLevelName(logging.INFO)}{ColorCodes.RESET}")
+        logging.addLevelName(logging.WARNING,
+                             f"{ColorCodes.YELLOW}{logging.getLevelName(logging.WARNING)}{ColorCodes.RESET}")
+        logging.addLevelName(logging.ERROR, f"{ColorCodes.RED}{logging.getLevelName(logging.ERROR)}{ColorCodes.RESET}")
 
 
 if __name__ == '__main__':
