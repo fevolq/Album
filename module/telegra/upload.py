@@ -24,7 +24,7 @@ class UploadAlbum:
     Host = 'https://telegra.ph'
     AuthorUrl = None
 
-    MaxUploadRate = 10  # 图片上传的最大频率（/分）
+    MaxUploadRate = 20  # 图片上传的最大频率（/分）
     MaxMiss = 3  # 允许的最大图片丢失数量
 
     def __init__(self, title: str, images: List[str], **kwargs):

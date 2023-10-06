@@ -25,7 +25,7 @@ class Producer:
         :param headers:
         :return:
         """
-        logging.info(f'发送消息：{json.dumps(data)}')
+        logging.info(f'发送消息：{json.dumps(data, ensure_ascii=False)}')
         self.mq.producer(data=data, headers=headers)
 
     def start(self):

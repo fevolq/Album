@@ -3,6 +3,7 @@
 # CreateTime: 2023/9/29 22:22
 # FileName:
 
+import urllib.parse
 from abc import ABCMeta, abstractmethod
 
 
@@ -41,7 +42,7 @@ class Origin(metaclass=ABCMeta):
         :param end_point:
         :return:
         """
-        return end_point
+        return urllib.parse.unquote(end_point)
 
     @abstractmethod
     def run(self): ...

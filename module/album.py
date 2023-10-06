@@ -61,7 +61,7 @@ class Album:
                                                            condition={'hash': {'=': self.hash_str}})
         title_res = mysqlDB.execute(title_sql, title_args)['result']
         if not title_res:
-            logging.warning(f'来源：{self.origin}，end_point：{self.end_point}，hash：{self.hash_str} 未找到图集')
+            logging.error(f'来源：{self.origin}，end_point：{self.end_point}，hash：{self.hash_str} 未找到图集')
             self.__hit = False
             return
         self.title = title_res[0]['title']
@@ -127,6 +127,9 @@ class Album:
             logging.info(f'来源：{self.origin}，title：{self.title} 更新失败。album： {self.uri}')
 
     def run(self):
+        if not self.__hit:
+            return False
+
         if not self.has_record:
             logging.info(f'Start make album：{self.origin} - {self.title}')
             self.uri = upload.run(self.title, self.images,

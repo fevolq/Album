@@ -41,6 +41,7 @@ class Telegra(Origin):
 
     @classmethod
     def resolve_end_point(cls, end_point):
+        end_point = super().resolve_end_point(end_point)
         return end_point.strip().strip('/')
 
     def fetch_response(self, url):
