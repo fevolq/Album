@@ -17,9 +17,9 @@ class Telegra(Origin):
     Host = 'https://telegra.ph'
     Name = 'telegra'
 
-    def __init__(self, end_point, auths: List = None):
+    def __init__(self, end_point, auths: List):
         super().__init__()
-        self.end_point = end_point
+        self.end_point = self.resolve_end_point(end_point)
         self.__auths = [auth.strip() for auth in auths if auth.strip()] or ['其他']
 
         self.__title = None

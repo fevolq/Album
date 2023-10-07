@@ -99,7 +99,7 @@ class AsyncQueue:
                     data = callback()
                 self.q.put(data)
 
-            pools.execute_event(func, [[(i,)] for i in range(times)], maxsize=maxsize, force_pool=True)
+            pools.execute_event(func, [[(i,)] for i in range(times)], maxsize=maxsize)
 
         self.__producer_thread = threading.Thread(target=producer)
 
@@ -149,7 +149,7 @@ class AsyncQueue:
                     self._result.append(callback(data))
                     self.q.task_done()
 
-            pools.execute_event(func, times=maxsize, maxsize=maxsize, force_pool=True)
+            pools.execute_event(func, times=maxsize, maxsize=maxsize)
 
         self.__consumer_thread = threading.Thread(target=consumer)
 

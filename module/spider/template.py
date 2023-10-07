@@ -14,9 +14,9 @@ class Template(Origin):
     """
     Name = ''
 
-    def __init__(self, end_point, auths: List = None):
+    def __init__(self, end_point, auths: List):
         super().__init__()
-        self.end_point = end_point
+        self.end_point = self.resolve_end_point(end_point)
         self.__auths = [auth.strip() for auth in auths if auth.strip()] or ['其他']
 
         self.__title = None
@@ -33,6 +33,10 @@ class Template(Origin):
     @property
     def images(self):
         return self.__images
+
+    @classmethod
+    def resolve_end_point(cls, end_point):
+        return end_point
 
     def run(self):
         raise Exception('模板类不可实例化')

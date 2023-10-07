@@ -9,6 +9,7 @@ from typing import List, Union
 
 from telegraph import Telegraph
 
+import constant
 from module.bean.fetch import Fetch
 from utils import pools, util, rate_limit
 from utils.async_queue import AsyncQueue
@@ -20,12 +21,12 @@ class UploadAlbum:
     上传发布图集
     """
 
-    ShortName = 'Album'
     Host = 'https://telegra.ph'
-    AuthorUrl = None
+    ShortName = constant.AlbumShortName
+    AuthorUrl = constant.AlbumAuthorUrl
 
-    MaxUploadRate = 20  # 图片上传的最大频率（/分）
-    MaxMiss = 3  # 允许的最大图片丢失数量
+    UploadMaxRate = constant.UploadMaxRate
+    UploadMaxMiss = constant.UploadMaxMiss
 
     def __init__(self, title: str, images: List[str], **kwargs):
         """
@@ -42,7 +43,7 @@ class UploadAlbum:
 
         self.telegraph = Telegraph()
         self.telegraph.create_account(short_name=UploadAlbum.ShortName, author_name=f'{self.auth}')
-        self.upload_limiter = rate_limit.RateLimiter(UploadAlbum.MaxUploadRate, 60, name='upload')
+        self.upload_limiter = rate_limit.RateLimiter(UploadAlbum.UploadMaxRate, 60, name='upload')
 
         self.end_point = ''
 
@@ -142,8 +143,7 @@ class UploadAlbum:
         #     img = self._upload_image(image)
         #     result.append(img)
 
-        result = pools.execute_event(self._upload_image, [[(image,)] for image in images if image],
-                                     maxsize=8, force_pool=True)
+        result = pools.execute_event(self._upload_image, [[(image,)] for image in images if image], maxsize=8)
         result = list(filter(lambda item: item is not None, result))
         result.sort(key=lambda item: item['index'])
 
@@ -170,10 +170,10 @@ class UploadAlbum:
         """
         logging.info(f'Publish: {self.title}')
         htmls = [f'<img src="{image}">' for image in images if image]
-        if len(self.images) - len(htmls) >= UploadAlbum.MaxMiss:
+        if len(self.images) - len(htmls) >= UploadAlbum.UploadMaxMiss:
             logging.error(
                 f'title：{self.title}，{len(self.images)}张图片丢失数量：{len(self.images) - len(htmls)}，'
-                f'超出阈值{UploadAlbum.MaxMiss}')
+                f'超出阈值{UploadAlbum.UploadMaxMiss}')
             return
 
         html = ''.join(htmls)
