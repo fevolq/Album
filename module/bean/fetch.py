@@ -42,12 +42,10 @@ class Fetch:
         :param headers:
         :param again: 异常重复次数
         :param kwargs:
-        :return: {res: 请求的返回, times: 请求的次数}
+        :return: 请求的返回
         """
-        result = {'res': None, 'times': 0}
 
         def do():
-            result['times'] += 1
             _headers = {
                 'user-agent': get_user_agent(),
             }
@@ -56,15 +54,16 @@ class Fetch:
 
             return requests.request(method, url, headers=_headers, **kwargs)
 
+        resp = None
         num = 0
-        while num <= again - 1:
+        while num < again - 1:
             try:
-                result['res'] = do()
+                resp = do()
                 break
             except:
                 num += 1
 
-        return result
+        return resp or do()
 
     def fetch_response_with_selenium(self, url, *args, **kwargs):
         """

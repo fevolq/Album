@@ -43,7 +43,7 @@ class MmmRed(Origin):
         return end_point.strip().strip('/')
 
     def fetch_response(self, url):
-        return self.fetch.request(url)['res']
+        return self.fetch.request(url)
 
     def _solve(self, html):
         self.__title = html.xpath('//div[@class="content"]/div[1]/h3/span/text()')[0]

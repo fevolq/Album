@@ -64,8 +64,7 @@ class UploadAlbum:
                 content = f.read()
         else:
             # resp = requests.get(image, headers=self.kwargs.get('headers', None))
-            result = Fetch.request(image, headers=self.kwargs.get('extra', {}).get('headers', None), again=3)
-            resp = result['res']
+            resp = Fetch.request(image, headers=self.kwargs.get('extra', {}).get('headers', None), again=3)
             if resp is None:
                 logging.error(f'Failure load：{image} , error request')
             elif resp.status_code == 200:
@@ -116,10 +115,8 @@ class UploadAlbum:
 
         with self.upload_limiter:
             url = f'{UploadAlbum.Host}/upload'
-            result = Fetch.request(url, method='POST', again=3,
-                                   files={'file': ('file', content, 'image/jpeg')})
+            resp = Fetch.request(url, method='POST', again=3, files={'file': ('file', content, 'image/jpeg')})
 
-        resp = result['res']
         if resp is None:
             logging.warning(f'Error upload request: {image["url"]}')
             return image

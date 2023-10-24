@@ -45,7 +45,7 @@ class Telegra(Origin):
         return end_point.strip().strip('/')
 
     def fetch_response(self, url):
-        return self.fetch.request(url)['res']
+        return self.fetch.request(url)
 
     def _solve(self, resp):
         html = etree.HTML(resp.content.decode('utf-8'))

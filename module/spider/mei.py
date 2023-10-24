@@ -47,7 +47,7 @@ class Mei(Origin):
         return end_point.strip().strip('/')
 
     def fetch_again(self, url, *args, **kwargs):
-        resp = self.fetch.request(url, *args, **kwargs)['res']
+        resp = self.fetch.request(url, *args, **kwargs)
         if resp and resp.status_code != 200:
             raise Exception(f'error url: {url}\n{resp.text}')
         html = etree.HTML(resp.content.decode('gbk'))
@@ -124,10 +124,10 @@ class Mei(Origin):
 
 
 if __name__ == '__main__':
-    from utils import log_util
+    end_point_ = ''
+    auths_ = []
 
-    log_util.init_logging(stream_level='INFO')
-
-    mei = Mei('81/81704/', ['就是阿朱啊'])
-    mei.run()
-    print(len(mei.images))
+    obj = Mei(end_point=end_point_, auths=auths_)
+    obj.run()
+    print(obj.images)
+    print(len(obj.images))
