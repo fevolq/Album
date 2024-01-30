@@ -13,7 +13,7 @@ from module.mq import rabbit
 
 class Producer:
 
-    def __init__(self, queue: str = constant.MQ_QUEUE):
+    def __init__(self, queue: str = constant.MqQueue):
         self.queue = queue
 
         self.mq = rabbit.Param(with_dead_exchange=True)

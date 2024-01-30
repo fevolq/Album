@@ -67,15 +67,15 @@ class Param:
         """
         if with_dead_exchange:
             # 死信队列的交换机与队列名，使用常量
-            self.queue = constant.MQ_QUEUE
+            self.queue = constant.MqQueue
             routing_key = ''
-            self.declare_queue(constant.MQ_DEAD_QUEUE, routing_key=routing_key)  # 声明普通队列（死信交换机 >>）
-            self.declare_exchange(constant.MQ_DEAD_EXCHANGE)  # 声明死信交换机
-            self.channel.queue_bind(queue=constant.MQ_DEAD_QUEUE, exchange=constant.MQ_DEAD_EXCHANGE,
+            self.declare_queue(constant.MqDeadQueue, routing_key=routing_key)  # 声明普通队列（死信交换机 >>）
+            self.declare_exchange(constant.MqDeadExchange)  # 声明死信交换机
+            self.channel.queue_bind(queue=constant.MqDeadQueue, exchange=constant.MqDeadExchange,
                                     routing_key=routing_key)
             self.declare_queue(self.queue, to_dead_exchange=True)  # 声明死信队列（>> 死信交换机）
         else:
-            # 普通队列。一般在获取死信消息时使用，queue = constant.MQ_DEAD_QUEUE
+            # 普通队列。一般在获取死信消息时使用，queue = constant.MqDeadQueue
             assert queue, '缺少 queue'
             self.queue = queue
             self.declare_queue(queue)
@@ -91,7 +91,7 @@ class Param:
         args = {}
         if to_dead_exchange:
             args = {
-                'x-dead-letter-exchange': options.get('exchange', constant.MQ_DEAD_EXCHANGE),
+                'x-dead-letter-exchange': options.get('exchange', constant.MqDeadExchange),
                 'x-dead-letter-routing-key': options.get('routing-key', ''),
             }
         self.channel.queue_declare(queue=queue, durable=True, arguments=args)

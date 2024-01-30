@@ -18,6 +18,6 @@ OriginAlbumTable = 'origin_album'  # 各来源图集
 OriginImageTable = 'origin_image'  # 各来源图集的图片链接
 
 # RabbitMQ
-MQ_QUEUE = 'album'  # rabbit队列名称
-MQ_DEAD_EXCHANGE = f'dead_{MQ_QUEUE}_exchange'  # rabbit死信交换机
-MQ_DEAD_QUEUE = f'dead_{MQ_QUEUE}'  # rabbit死信队列
+MqQueue = 'album'  # rabbit队列名称
+MqDeadExchange = f'dead_{MqQueue}_exchange'  # rabbit死信交换机
+MqDeadQueue = f'dead_{MqQueue}'  # rabbit死信队列

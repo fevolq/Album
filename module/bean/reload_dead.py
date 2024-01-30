@@ -36,8 +36,8 @@ if __name__ == '__main__':
 
     log_util.init_logging(stream_level='INFO')
 
-    ReloadDead(constant.MQ_QUEUE, constant.MQ_DEAD_QUEUE).run()
+    ReloadDead(constant.MqQueue, constant.MqDeadQueue).run()
 
     # # 中转。注意更改对应的with_dead_exchange
-    # ReloadDead('demo', constant.MQ_QUEUE).run()
-    # ReloadDead(constant.MQ_QUEUE, 'demo').run()
+    # ReloadDead('demo', constant.MqQueue).run()
+    # ReloadDead(constant.MqQueue, 'demo').run()
