@@ -17,12 +17,12 @@ class Telegra(Origin):
     Host = 'https://telegra.ph'
     Name = 'telegra'
 
-    def __init__(self, end_point, auths: List):
+    def __init__(self, end_point, *, auths: List, **kwargs):
         super().__init__()
         self.end_point = self.resolve_end_point(end_point)
         self.__auths = [auth.strip() for auth in auths if auth.strip()] or ['其他']
 
-        self.__title = None
+        self.__title = kwargs.get('title', None)
         self.__images = []
 
         self.fetch = Fetch()
@@ -49,7 +49,7 @@ class Telegra(Origin):
 
     def _solve(self, resp):
         html = etree.HTML(resp.content.decode('utf-8'))
-        self.__title = html.xpath('//article[@id="_tl_editor"]/h1/text()')[0]
+        self.__title = self.__title or html.xpath('//article[@id="_tl_editor"]/h1/text()')[0]
 
         pattern = '<img src="(.*?)">'
         urls = re.findall(pattern, resp.text)

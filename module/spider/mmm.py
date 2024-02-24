@@ -16,12 +16,12 @@ class MmmRed(Origin):
     Host = 'https://mmm.red'
     Name = 'mmm'
 
-    def __init__(self, end_point, auths: List):
+    def __init__(self, end_point, *, auths: List, **kwargs):
         super().__init__()
         self.end_point = self.resolve_end_point(end_point)
         self.__auths = [auth.strip() for auth in auths if auth.strip()] or ['其他']
 
-        self.__title = None
+        self.__title = kwargs.get('title', None)
         self.__images = []
 
         self.fetch = Fetch()
@@ -46,7 +46,7 @@ class MmmRed(Origin):
         return self.fetch.request(url)
 
     def _solve(self, html):
-        self.__title = html.xpath('//div[@class="content"]/div[1]/h3/span/text()')[0]
+        self.__title = self.__title or html.xpath('//div[@class="content"]/div[1]/h3/span/text()')[0]
         # self.__auths = [html.xpath('//div[@class="content"]/div[2]/a[2]/text()')[0]]  # 多作者无法解析
 
         images_div = html.xpath('//div[@id="masonry"]/div')

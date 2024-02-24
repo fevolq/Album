@@ -52,7 +52,7 @@ if __name__ == '__main__':
     log_util.init_logging(stream_level='INFO')
 
     spider_tasks = [
-        # {'origin': '', 'end_point': '', 'auths': ['']},
+        # {'origin': '', 'end_point': '', 'auths': [''], 'title': ''},
     ]
 
     Producer().run(spider_tasks)

@@ -17,12 +17,12 @@ class Mei(Origin):
     Host = 'https://www.meimeimei.org'
     Name = 'mei'
 
-    def __init__(self, end_point, auths: List):
+    def __init__(self, end_point, *, auths: List, **kwargs):
         super().__init__()
         self.end_point = self.resolve_end_point(end_point)
         self.__auths = [auth.strip() for auth in auths if auth.strip()] or ['其他']
 
-        self.__title = None
+        self.__title = kwargs.get('title', None)
         self.__images = []
 
         self.pages = 1
@@ -66,7 +66,7 @@ class Mei(Origin):
         return html
 
     def solve(self, html):
-        self.__title = html.xpath('//ul[@class="bread"]/li')[-1].xpath('./a/@title')[0]
+        self.__title = self.__title or html.xpath('//ul[@class="bread"]/li')[-1].xpath('./a/@title')[0]
         self.__images.append(self.solve_image(html))
         a_pages = html.xpath('//div[@class="chapterpage"]/a')
         self.pages = int(a_pages[-2].xpath('./text()')[0])

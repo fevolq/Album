@@ -119,7 +119,7 @@ class Param:
             msg_headers = bean.Header(**properties.headers)
             if headers is not None and msg_headers != headers:  # 不是指定类型的消息时，放回队列
                 # TODO：会持续循环
-                # ch.basic_reject(delivery_tag=method.delivery_tag, requeue=True)
+                ch.basic_reject(delivery_tag=method.delivery_tag, requeue=True)
                 ...
             else:
                 data = json.loads(body.decode())
